@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { ethers, TransactionRequest } from "ethers";
+import { BlockTag, ethers, Log, TopicFilter, TransactionRequest } from "ethers";
 
 import { config } from "../../../config";
 import { SECOND } from "../../../constants";
@@ -35,6 +35,15 @@ export class NodeFetcherService {
         return this.getBalancePrivate(address, blockNumber);
     }
 
+    async getLogs(
+        address: string,
+        topics: TopicFilter,
+        fromBlock: BlockTag,
+        toBlock: BlockTag
+    ): Promise<Log[]> {
+        return this.getLogsPrivate(address, topics, fromBlock, toBlock);
+    }
+
     private async callPrivate(tx: TransactionRequest): Promise<string> {
         try {
             return await this.provider.call(tx);
@@ -59,6 +68,28 @@ export class NodeFetcherService {
             await sleep(SECOND);
 
             return this.getBalancePrivate(address, blockNumber);
+        }
+    }
+
+    private async getLogsPrivate(
+        address: string,
+        topics: TopicFilter,
+        fromBlock: BlockTag,
+        toBlock: BlockTag,
+    ): Promise<Log[]> {
+        try {
+            return await this.provider.getLogs({
+                address,
+                topics,
+                fromBlock,
+                toBlock
+            });
+        } catch (error) {
+            console.log('Error while getLogs:', error.message);
+
+            await sleep(SECOND);
+
+            return this.getLogsPrivate(address, topics, fromBlock, toBlock);
         }
     }
 }
