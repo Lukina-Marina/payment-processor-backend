@@ -6,6 +6,8 @@ import {
     IBaseEventProcessor
 } from './eventProcessors/index';
 import { NodeFetcherService } from "../../rpc/services/nodeFetcher.service";
+import { DatabaseService } from 'src/database/database.service';
+import { Contract } from "@prisma/client";
 
 @Injectable()
 export class ContractMonitoringService {
@@ -15,7 +17,7 @@ export class ContractMonitoringService {
         eventProcessor: IBaseEventProcessor
     }[];
 
-    constructor(private nodeFetcherService: NodeFetcherService) {
+    constructor(private nodeFetcherService: NodeFetcherService, private databaseService: DatabaseService) {
         this.monitoringParameters = [
             {
                 contractAddress: config.contracts.subscriptionManager.address,
