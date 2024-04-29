@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { BlockTag, ethers, Log, TopicFilter, TransactionRequest } from "ethers";
+import { Block, BlockTag, ethers, Log, TopicFilter, TransactionRequest } from "ethers";
 
 import { config } from "../../../config";
 import { SECOND } from "../../../constants";
@@ -8,14 +8,18 @@ import { sleep } from "../../../helpers";
 
 @Injectable()
 export class NodeFetcherService {
-    provider: ethers.InfuraProvider;
+    provider: ethers.AbstractProvider;
 
     rpcEndpoint: string;
 
     constructor() {
         this.rpcEndpoint = config.rpcEndpoint;
 
-        this.provider = new ethers.InfuraProvider(this.rpcEndpoint);
+        this.provider = new ethers.JsonRpcProvider(this.rpcEndpoint);
+    }
+
+    async getBlock(blockTag: BlockTag): Promise<Block>  {
+        return this.getBlockPrivate(blockTag);
     }
 
     async call(
@@ -42,6 +46,18 @@ export class NodeFetcherService {
         toBlock: BlockTag
     ): Promise<Log[]> {
         return this.getLogsPrivate(address, topics, fromBlock, toBlock);
+    }
+
+    private async getBlockPrivate(blockTag: BlockTag): Promise<Block> {
+        try {
+            return await this.provider.getBlock(blockTag);
+        } catch (error) {
+            console.log('Error while getBlock:', error.message);
+
+            await sleep(SECOND);
+
+            return this.getBlockPrivate(blockTag);
+        }
     }
 
     private async callPrivate(tx: TransactionRequest): Promise<string> {
@@ -73,7 +89,7 @@ export class NodeFetcherService {
 
     private async getLogsPrivate(
         address: string,
-        topics: TopicFilter,
+        topics: TopicFilter, 
         fromBlock: BlockTag,
         toBlock: BlockTag,
     ): Promise<Log[]> {
