@@ -1,5 +1,6 @@
 export const config = {
     rpcEndpoint: "",
+    eventPeriod: 5000,
     
     contracts: {
         subscriptionManager: {
