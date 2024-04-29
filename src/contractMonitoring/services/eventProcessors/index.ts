@@ -1,3 +1,3 @@
-export * from "./IBaseEventProcessor";
+export * from "./BaseEventProcessor";
 export * from "./SubscriptionManagerEventProcessor";
 export * from "./UserManagerEventProcessor";

@@ -1,3 +1,3 @@
-import { IBaseEventProcessor } from "./IBaseEventProcessor";
+import { BaseEventProcessor } from "./BaseEventProcessor";
 
-export class UserManagerEventProcessor implements IBaseEventProcessor {}
+export class UserManagerEventProcessor extends BaseEventProcessor {}

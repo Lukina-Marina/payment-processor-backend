@@ -1,5 +1,5 @@
-import { IBaseEventProcessor } from "./IBaseEventProcessor";
+import { BaseEventProcessor } from "./BaseEventProcessor";
 
-export class SubscriptionManagerEventProcessor implements IBaseEventProcessor {
+export class SubscriptionManagerEventProcessor extends BaseEventProcessor {
     
 }
