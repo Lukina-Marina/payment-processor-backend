@@ -14,7 +14,7 @@ datasource db {
 }
 
 model Contract {
-  address String @id @db.Char(40)
+  address String @id
 
   lastProcessedBlock BigInt @db.BigInt
 }
