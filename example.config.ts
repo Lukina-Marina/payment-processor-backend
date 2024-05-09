@@ -1,6 +1,10 @@
+const SECOND = 1000;
+const MINUTE = 60 * SECOND;
+
 export const config = {
     rpcEndpoint: "",
     eventPeriod: 5000,
+    eventProcessingSleepPeriod: MINUTE,
     
     contracts: {
         subscriptionManager: {
