@@ -24,12 +24,12 @@ export class ContractMonitoringService implements OnApplicationBootstrap {
             {
                 contractAddress: config.contracts.subscriptionManager.address,
                 startBlockNumber: BigInt(config.contracts.subscriptionManager.deployBlockNumber),
-                eventProcessor: new SubscriptionManagerEventProcessor()
+                eventProcessor: new SubscriptionManagerEventProcessor(databaseService)
             },
             {
                 contractAddress: config.contracts.userManager.address,
                 startBlockNumber: BigInt(config.contracts.userManager.deployBlockNumber),
-                eventProcessor: new UserManagerEventProcessor()
+                eventProcessor: new UserManagerEventProcessor(databaseService)
             }
         ];
     }
@@ -78,7 +78,7 @@ export class ContractMonitoringService implements OnApplicationBootstrap {
                         endBlock
                     );
 
-                    await monitoringParameter.eventProcessor.processLogs(logs);
+                    await monitoringParameter.eventProcessor.processEvents(logs);
 
                     monitoringParameter.startBlockNumber = endBlock + 1n;
 
