@@ -18,3 +18,14 @@ model Contract {
 
   lastProcessedBlock BigInt @db.BigInt
 }
+
+model ActiveSubscription {
+  user String
+  appId String
+  subscriptionId String
+  activeSubscriptionId String
+  token String
+  subscriptionEndTime Int
+
+  @@id(name: "userAndActiveSubscriptionId", fields: [user, activeSubscriptionId])
+}
