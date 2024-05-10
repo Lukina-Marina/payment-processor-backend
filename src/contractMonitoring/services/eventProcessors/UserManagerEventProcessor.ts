@@ -47,8 +47,8 @@ export class UserManagerEventProcessor extends BaseEventProcessor {
             });
         } else if (parsedLog.name == "CanceledSubscription") {
             const user = parsedLog.args.user;
-            const activeSubscriptionId = parsedLog.args.activeSubscriptionId;
-            const lastElementId = parsedLog.args.lastElementId;
+            const activeSubscriptionId = parsedLog.args.activeSubscriptionId; 
+            const lastElementId = parsedLog.args.lastElementId; 
             const activeSubscriptionInfo = parsedLog.args.activeSubscriptionInfo;
 
             await this.databaseService.activeSubscription.delete({
@@ -59,17 +59,19 @@ export class UserManagerEventProcessor extends BaseEventProcessor {
                     }
                 }
             });
-            await this.databaseService.activeSubscription.update({
-                data: {
-                    activeSubscriptionId,
-                },
-                where: {
-                    userAndActiveSubscriptionId: {
-                        user,
-                        activeSubscriptionId: lastElementId
+            if (activeSubscriptionId != lastElementId) {
+                await this.databaseService.activeSubscription.update({
+                    data: {
+                        activeSubscriptionId,
+                    },
+                    where: {
+                        userAndActiveSubscriptionId: {
+                            user,
+                            activeSubscriptionId: lastElementId
+                        }
                     }
-                }
-            });
+                });
+            }
         } else if (parsedLog.name == "PaymentTokenChanged") {
             const user = parsedLog.args.user;
             const oldToken = parsedLog.args.oldToken;
