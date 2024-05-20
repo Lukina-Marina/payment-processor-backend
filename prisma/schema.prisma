@@ -20,12 +20,36 @@ model Contract {
 }
 
 model ActiveSubscription {
-  user String
-  appId String
-  subscriptionId String
+  user                 String
+  appId                String
+  subscriptionId       String
   activeSubscriptionId String
-  token String
-  subscriptionEndTime Int
+  token                String
+  subscriptionEndTime  Int
 
   @@id(name: "userAndActiveSubscriptionId", fields: [user, activeSubscriptionId])
+}
+
+model App {
+  id           String         @id
+  owner        String
+  name         String
+  description  String
+
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  appId              String
+  subscriptionId     String
+  name               String
+  amounts            String[]
+  subscriptionPeriod Int
+  reciever           String
+  tokens             String[]
+  isPaused           Boolean
+
+  app App @relation(fields: [appId], references: [id])
+
+  @@id(name: "appIdAndSubscriptionId", fields: [appId, subscriptionId])
 }
