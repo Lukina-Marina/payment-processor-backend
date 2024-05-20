@@ -6,6 +6,6 @@ import { SignerModule } from 'src/signer/signer.module';
 
 @Module({
   providers: [SubscriptionService],
-  imports: [RpcModule, DatabaseModule, SignerModule]
+  imports: [RpcModule, DatabaseModule, SignerModule],
 })
 export class SubscriptionModule {}

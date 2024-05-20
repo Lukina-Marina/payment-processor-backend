@@ -6,6 +6,12 @@ import { SubscriptionModule } from './subscription/subscription.module';
 import { SignerModule } from './signer/signer.module';
 
 @Module({
-  imports: [RpcModule, ContractMonitoringModule, DatabaseModule, SubscriptionModule, SignerModule],
+  imports: [
+    RpcModule,
+    ContractMonitoringModule,
+    DatabaseModule,
+    SubscriptionModule,
+    SignerModule,
+  ],
 })
-export class AppModule { }
+export class AppModule {}

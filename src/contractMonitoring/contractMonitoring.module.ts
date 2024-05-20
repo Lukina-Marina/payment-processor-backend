@@ -5,6 +5,6 @@ import { DatabaseModule } from 'src/database/database.module';
 
 @Module({
   providers: [ContractMonitoringService],
-  imports: [RpcModule, DatabaseModule]
+  imports: [RpcModule, DatabaseModule],
 })
 export class ContractMonitoringModule {}

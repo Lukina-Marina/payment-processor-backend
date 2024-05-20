@@ -5,6 +5,6 @@ import { SignerService } from './services/signer.service';
 @Module({
   providers: [SignerService],
   imports: [RpcModule],
-  exports: [SignerService]
+  exports: [SignerService],
 })
 export class SignerModule {}
