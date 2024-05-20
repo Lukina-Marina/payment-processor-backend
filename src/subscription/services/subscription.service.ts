@@ -5,11 +5,13 @@ import { DatabaseService } from 'src/database/database.service';
 import { SignerService } from 'src/signer/services/signer.service';
 import { Interface } from 'ethers';
 import * as Erc20ABI from '../../../abi/ERC20.json';
+import * as UserManagerABI from '../../../abi/UserManager.json';
 
 @Injectable()
 export class SubscriptionService implements OnApplicationBootstrap {
   private monirotringPromise: Promise<void>;
   private erc20Interface: Interface;
+  private userManagerInterface: Interface;
 
   constructor(
     private nodeFetcherService: NodeFetcherService,
@@ -17,6 +19,7 @@ export class SubscriptionService implements OnApplicationBootstrap {
     private signerService: SignerService,
   ) {
     this.erc20Interface = new Interface(Erc20ABI);
+    this.userManagerInterface = new Interface(UserManagerABI);
   }
 
   async onApplicationBootstrap(): Promise<void> {
@@ -37,6 +40,14 @@ export class SubscriptionService implements OnApplicationBootstrap {
         });
 
       for (const activeSubscription of activeSubscriptions) {
+        const subscriptionInfo = await this.databaseService.subscription.findUnique({
+          where: {
+            appIdAndSubscriptionId: {
+              appId: activeSubscription.appId,
+              subscriptionId: activeSubscription.subscriptionId
+            }
+          }
+        });
         //1. проверить баланс
         //2. проверить апрув
         //3. проверить статус транзакции
