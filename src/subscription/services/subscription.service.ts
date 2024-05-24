@@ -2,7 +2,7 @@ import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { config } from '../../../config';
 import { NodeFetcherService } from '../../rpc/services/nodeFetcher.service';
 import { DatabaseService } from 'src/database/database.service';
-import { SignerService } from 'src/signer/services/signer.service';
+import { SignerService, TxStatus } from 'src/signer/services/signer.service';
 import { FunctionFragment, Interface } from 'ethers';
 import * as Erc20ABI from '../../../abi/ERC20.json';
 import * as UserManagerABI from '../../../abi/UserManager.json';
@@ -16,6 +16,11 @@ export class SubscriptionService implements OnApplicationBootstrap {
   private allowanceFragment: FunctionFragment;
 
   private userManagerInterface: Interface;
+  private renewSubscriptionFragment: FunctionFragment;
+
+  private activeSubscriptionTxNumber: {
+    [userAndActiveSubscriptionId: string]: number;
+  } = {};
 
   constructor(
     private nodeFetcherService: NodeFetcherService,
@@ -27,6 +32,7 @@ export class SubscriptionService implements OnApplicationBootstrap {
     this.allowanceFragment = this.erc20Interface.getFunction("allowance");
 
     this.userManagerInterface = new Interface(UserManagerABI);
+    this.renewSubscriptionFragment = this.userManagerInterface.getFunction("renewSubscription");
   }
 
   async onApplicationBootstrap(): Promise<void> {
@@ -100,13 +106,37 @@ export class SubscriptionService implements OnApplicationBootstrap {
         if (allowanceOfUser < amount) {
           continue;
         }
-        
-        // TODO
-        //3. проверить статус транзакции
-        //3.1 если fail, то отправить заново
-        //3.2 если success, то удалить статус транзакции
-        //3.3 если не отправлена, то отправить
+
+        const userAndActiveSubscriptionId = activeSubscription.user + activeSubscription.activeSubscriptionId;
+        const txNumber = this.activeSubscriptionTxNumber[userAndActiveSubscriptionId];
+
+        if (txNumber == undefined) {
+          await this.sendTx(activeSubscription.user, activeSubscription.activeSubscriptionId);
+        } else {
+          const txStatus = this.signerService.txStatus[txNumber];
+
+          if (txStatus == TxStatus.Pending) {
+            continue;
+          } else if (txStatus == TxStatus.Fail) {
+            await this.sendTx(activeSubscription.user, activeSubscription.activeSubscriptionId);
+
+            this.signerService.deleteTxFromQueue(txNumber);
+          } else if (txStatus == TxStatus.Success) {
+            this.signerService.deleteTxFromQueue(txNumber);
+          }
+        }
       }
     }
+  }
+
+  async sendTx(user: string, activeSubscriptionId: string): Promise<void> {
+    const userAndActiveSubscriptionId = user + activeSubscriptionId;
+    const renewSubscriptionData = await this.userManagerInterface.encodeFunctionData(this.renewSubscriptionFragment, [user, activeSubscriptionId]);
+    const txNumber = this.signerService.addTxToQueue({
+      to: config.contracts.userManager.address,
+      data: renewSubscriptionData
+    });
+
+    this.activeSubscriptionTxNumber[userAndActiveSubscriptionId] = txNumber;
   }
 }
