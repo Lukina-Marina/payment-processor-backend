@@ -4,6 +4,7 @@ import {
   Block,
   BlockTag,
   ethers,
+  JsonRpcSigner,
   Log,
   TopicFilter,
   TransactionRequest,
@@ -15,7 +16,7 @@ import { sleep } from '../../../helpers';
 
 @Injectable()
 export class NodeFetcherService {
-  provider: ethers.AbstractProvider;
+  provider: ethers.JsonRpcProvider;
 
   rpcEndpoint: string;
 
@@ -23,6 +24,11 @@ export class NodeFetcherService {
     this.rpcEndpoint = config.rpcEndpoint;
 
     this.provider = new ethers.JsonRpcProvider(this.rpcEndpoint);
+  }
+
+  createSigner(privateKey: string): JsonRpcSigner {
+    const newSigner = new JsonRpcSigner(this.provider, privateKey);
+    return newSigner;
   }
 
   async getBlock(blockTag: BlockTag): Promise<Block> {
